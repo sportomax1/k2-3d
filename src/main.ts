@@ -9,8 +9,10 @@ import {
   DirectionalLight,
   Engine,
   HemisphericLight,
+  Material,
   Mesh,
   MeshBuilder,
+  PBRMaterial,
   Quaternion,
   Scalar,
   Scene,
@@ -33,183 +35,162 @@ const jumpButton = document.querySelector<HTMLButtonElement>("#jump-button");
 const resetButton = document.querySelector<HTMLButtonElement>("#reset-button");
 const joystickZone = document.querySelector<HTMLElement>("#joystick-zone");
 const joystickKnob = document.querySelector<HTMLElement>("#joystick-knob");
+const zoneChip = document.querySelector<HTMLElement>("#zone-chip");
+const characterButtons = [...document.querySelectorAll<HTMLButtonElement>("[data-character]")];
 
-const engine = new Engine(canvas, true, {
-  preserveDrawingBuffer: false,
-  stencil: true,
-  antialias: true,
-  powerPreference: "high-performance",
-});
-
+const engine = new Engine(canvas, true, { antialias: true, stencil: true, powerPreference: "high-performance" });
 const scene = new Scene(engine);
 scene.clearColor = new Color4(0.52, 0.76, 0.94, 1);
-scene.collisionsEnabled = true;
 
-const camera = new ArcRotateCamera(
-  "third-person-camera",
-  -Math.PI / 2,
-  1.08,
-  7.5,
-  new Vector3(0, 1.25, 0),
-  scene,
-);
+const camera = new ArcRotateCamera("camera", -Math.PI / 2, 1.08, 8.2, new Vector3(0, 1.2, 0), scene);
 camera.attachControl(canvas, true);
 camera.lowerRadiusLimit = 3.2;
-camera.upperRadiusLimit = 13;
-camera.lowerBetaLimit = 0.55;
-camera.upperBetaLimit = 1.42;
+camera.upperRadiusLimit = 18;
+camera.lowerBetaLimit = 0.5;
+camera.upperBetaLimit = 1.45;
 camera.wheelDeltaPercentage = 0.01;
 camera.panningSensibility = 0;
-camera.angularSensibilityX = 2500;
-camera.angularSensibilityY = 2500;
+camera.angularSensibilityX = 2400;
+camera.angularSensibilityY = 2400;
 camera.inertia = 0.82;
 
 const ambient = new HemisphericLight("ambient", new Vector3(0.2, 1, 0.1), scene);
-ambient.intensity = 0.9;
+ambient.intensity = 0.88;
 ambient.groundColor = new Color3(0.22, 0.29, 0.34);
-
 const sun = new DirectionalLight("sun", new Vector3(-0.55, -1, 0.35), scene);
-sun.position = new Vector3(16, 24, -14);
-sun.intensity = 2.1;
-
+sun.position = new Vector3(35, 50, -28);
+sun.intensity = 2.15;
 const shadows = new ShadowGenerator(2048, sun);
 shadows.useBlurExponentialShadowMap = true;
 shadows.blurKernel = 24;
-shadows.darkness = 0.26;
+shadows.darkness = 0.25;
 
-const ground = MeshBuilder.CreateGround("ground", { width: 90, height: 90, subdivisions: 2 }, scene);
-const groundMaterial = new StandardMaterial("ground-material", scene);
-groundMaterial.diffuseColor = new Color3(0.18, 0.48, 0.27);
-groundMaterial.specularColor = new Color3(0.02, 0.03, 0.02);
-ground.material = groundMaterial;
-ground.receiveShadows = true;
-
-const path = MeshBuilder.CreateGround("path", { width: 7, height: 60 }, scene);
-path.position.y = 0.012;
-path.rotation.y = 0.18;
-const pathMaterial = new StandardMaterial("path-material", scene);
-pathMaterial.diffuseColor = new Color3(0.48, 0.40, 0.29);
-pathMaterial.specularColor = Color3.Black();
-path.material = pathMaterial;
-path.receiveShadows = true;
-
-function createEnvironment(): void {
-  const trunkMaterial = new StandardMaterial("trunks", scene);
-  trunkMaterial.diffuseColor = new Color3(0.28, 0.16, 0.08);
-  const leafMaterials = [
-    new Color3(0.08, 0.33, 0.15),
-    new Color3(0.12, 0.43, 0.19),
-    new Color3(0.20, 0.50, 0.23),
-  ].map((color, index) => {
-    const material = new StandardMaterial(`leaves-${index}`, scene);
-    material.diffuseColor = color;
-    material.specularColor = Color3.Black();
-    return material;
-  });
-
-  const treePositions = [
-    [-10, -7], [-13, 4], [-9, 12], [-16, -13], [11, -10], [15, -2], [11, 9],
-    [18, 14], [-22, 10], [23, -15], [-26, -4], [28, 5], [-18, 22], [19, 25],
-  ];
-
-  treePositions.forEach(([x, z], index) => {
-    const scale = 0.85 + (index % 4) * 0.12;
-    const trunk = MeshBuilder.CreateCylinder(`trunk-${index}`, {
-      height: 2.8 * scale,
-      diameterTop: 0.38 * scale,
-      diameterBottom: 0.62 * scale,
-      tessellation: 8,
-    }, scene);
-    trunk.position = new Vector3(x, 1.4 * scale, z);
-    trunk.material = trunkMaterial;
-    trunk.receiveShadows = true;
-    shadows.addShadowCaster(trunk);
-
-    const crown = MeshBuilder.CreateIcoSphere(`crown-${index}`, {
-      radius: 1.55 * scale,
-      subdivisions: 2,
-    }, scene);
-    crown.position = new Vector3(x, 3.35 * scale, z);
-    crown.scaling.y = 1.25;
-    crown.material = leafMaterials[index % leafMaterials.length];
-    crown.receiveShadows = true;
-    shadows.addShadowCaster(crown);
-  });
-
-  const rockMaterial = new StandardMaterial("rocks", scene);
-  rockMaterial.diffuseColor = new Color3(0.32, 0.38, 0.40);
-  rockMaterial.specularColor = new Color3(0.05, 0.05, 0.05);
-
-  for (let index = 0; index < 18; index += 1) {
-    const angle = index * 2.19;
-    const radius = 9 + (index % 6) * 3.2;
-    const rock = MeshBuilder.CreateIcoSphere(`rock-${index}`, {
-      radius: 0.35 + (index % 3) * 0.16,
-      subdivisions: 1,
-    }, scene);
-    rock.position = new Vector3(Math.cos(angle) * radius, rock.scaling.y * 0.3, Math.sin(angle) * radius);
-    rock.scaling = new Vector3(1.25, 0.7, 1);
-    rock.rotation = new Vector3(index * 0.31, angle, index * 0.17);
-    rock.material = rockMaterial;
-    rock.receiveShadows = true;
-    shadows.addShadowCaster(rock);
-  }
-
-  const portalRing = MeshBuilder.CreateTorus("portal-ring", {
-    diameter: 4.8,
-    thickness: 0.22,
-    tessellation: 48,
-  }, scene);
-  portalRing.position = new Vector3(0, 2.55, 21);
-  portalRing.rotation.x = Math.PI / 2;
-  const portalMaterial = new StandardMaterial("portal-material", scene);
-  portalMaterial.diffuseColor = new Color3(0.08, 0.38, 0.75);
-  portalMaterial.emissiveColor = new Color3(0.05, 0.25, 0.72);
-  portalRing.material = portalMaterial;
-  shadows.addShadowCaster(portalRing);
+function material(name: string, color: Color3, emissive?: Color3): StandardMaterial {
+  const value = new StandardMaterial(name, scene);
+  value.diffuseColor = color;
+  value.specularColor = new Color3(0.03, 0.03, 0.03);
+  if (emissive) value.emissiveColor = emissive;
+  return value;
 }
 
-createEnvironment();
+const grass = material("grass", new Color3(0.16, 0.45, 0.24));
+const sand = material("sand", new Color3(0.66, 0.56, 0.38));
+const stone = material("stone", new Color3(0.35, 0.39, 0.42));
+const wood = material("wood", new Color3(0.31, 0.18, 0.09));
+const water = material("water", new Color3(0.05, 0.34, 0.63), new Color3(0.02, 0.12, 0.22));
+water.alpha = 0.88;
+
+const ground = MeshBuilder.CreateGround("world", { width: 220, height: 220, subdivisions: 4 }, scene);
+ground.material = grass;
+ground.receiveShadows = true;
+
+function addTree(x: number, z: number, scale = 1): void {
+  const trunk = MeshBuilder.CreateCylinder("trunk", { height: 3 * scale, diameterTop: 0.35 * scale, diameterBottom: 0.65 * scale, tessellation: 8 }, scene);
+  trunk.position.set(x, 1.5 * scale, z);
+  trunk.material = wood;
+  const crown = MeshBuilder.CreateIcoSphere("crown", { radius: 1.6 * scale, subdivisions: 2 }, scene);
+  crown.position.set(x, 3.7 * scale, z);
+  crown.scaling.y = 1.25;
+  crown.material = material(`leaf-${x}-${z}`, new Color3(0.08 + (Math.abs(x) % 5) * 0.018, 0.32 + (Math.abs(z) % 4) * 0.025, 0.15));
+  [trunk, crown].forEach((mesh) => shadows.addShadowCaster(mesh));
+}
+
+function addRock(x: number, z: number, scale = 1): void {
+  const rock = MeshBuilder.CreateIcoSphere("rock", { radius: scale, subdivisions: 1 }, scene);
+  rock.position.set(x, scale * 0.55, z);
+  rock.scaling.set(1.35, 0.72, 1);
+  rock.rotation.set(scale * 0.2, x * 0.07, z * 0.05);
+  rock.material = stone;
+  shadows.addShadowCaster(rock);
+}
+
+function addHouse(x: number, z: number, color: Color3): void {
+  const body = MeshBuilder.CreateBox("house", { width: 5, depth: 4.5, height: 3.3 }, scene);
+  body.position.set(x, 1.65, z);
+  body.material = material(`house-${x}`, color);
+  const roof = MeshBuilder.CreateCylinder("roof", { diameter: 6.2, height: 5.2, tessellation: 3 }, scene);
+  roof.rotation.z = Math.PI / 2;
+  roof.position.set(x, 4.1, z);
+  roof.scaling.z = 0.8;
+  roof.material = material(`roof-${x}`, new Color3(0.34, 0.11, 0.08));
+  [body, roof].forEach((mesh) => shadows.addShadowCaster(mesh));
+}
+
+function createWorld(): void {
+  const trail = MeshBuilder.CreateGround("trail", { width: 8, height: 105 }, scene);
+  trail.position.y = 0.015;
+  trail.rotation.y = 0.28;
+  trail.material = sand;
+
+  for (let i = 0; i < 58; i += 1) {
+    const angle = i * 2.31;
+    const radius = 18 + (i % 10) * 7;
+    addTree(Math.cos(angle) * radius, Math.sin(angle) * radius, 0.75 + (i % 4) * 0.16);
+  }
+
+  for (let i = 0; i < 32; i += 1) {
+    const angle = i * 1.73;
+    const radius = 12 + (i % 8) * 8;
+    addRock(Math.cos(angle) * radius, Math.sin(angle) * radius, 0.35 + (i % 4) * 0.22);
+  }
+
+  const lake = MeshBuilder.CreateCylinder("lake", { diameter: 34, height: 0.12, tessellation: 64 }, scene);
+  lake.position.set(-48, 0.02, 28);
+  lake.material = water;
+
+  const island = MeshBuilder.CreateCylinder("island", { diameter: 9, height: 0.45, tessellation: 48 }, scene);
+  island.position.set(-48, 0.18, 28);
+  island.material = sand;
+  addTree(-48, 28, 1.3);
+
+  for (let i = 0; i < 5; i += 1) {
+    const step = MeshBuilder.CreateBox("bridge", { width: 3.6, height: 0.28, depth: 4.4 }, scene);
+    step.position.set(-25 - i * 4.4, 0.25, 28);
+    step.material = wood;
+    shadows.addShadowCaster(step);
+  }
+
+  addHouse(42, -22, new Color3(0.66, 0.34, 0.2));
+  addHouse(50, -16, new Color3(0.22, 0.48, 0.68));
+  addHouse(39, -10, new Color3(0.63, 0.55, 0.22));
+  addHouse(54, -4, new Color3(0.42, 0.6, 0.34));
+
+  for (let i = 0; i < 7; i += 1) {
+    const peak = MeshBuilder.CreateCylinder("mountain", { diameterBottom: 16 + i * 1.5, diameterTop: 0, height: 16 + i * 3, tessellation: 8 }, scene);
+    peak.position.set(-62 + i * 8, (16 + i * 3) / 2 - 0.2, -58 - (i % 2) * 7);
+    peak.material = stone;
+    shadows.addShadowCaster(peak);
+  }
+
+  const portal = MeshBuilder.CreateTorus("portal", { diameter: 6, thickness: 0.28, tessellation: 64 }, scene);
+  portal.position.set(0, 3.2, 52);
+  portal.rotation.x = Math.PI / 2;
+  portal.material = material("portal-material", new Color3(0.08, 0.38, 0.75), new Color3(0.05, 0.3, 0.85));
+  shadows.addShadowCaster(portal);
+}
+createWorld();
 
 const player = new TransformNode("player", scene);
-player.position = new Vector3(0, 0, 0);
-
-const collider = MeshBuilder.CreateCapsule("player-collider", { height: 1.8, radius: 0.38 }, scene);
-collider.parent = player;
-collider.position.y = 0.9;
-collider.isVisible = false;
-
 let characterRoot: TransformNode | null = null;
 let characterMeshes: AbstractMesh[] = [];
 let animationGroups: AnimationGroup[] = [];
 let currentAnimation: AnimationGroup | null = null;
 let currentAnimationName = "";
 let fallbackCharacter: Mesh | null = null;
+let activeStyle = "sky";
+const originalMaterials = new Map<AbstractMesh, Material>();
 
-function setStatus(text: string): void {
-  if (statusElement) statusElement.textContent = text;
+function setStatus(text: string): void { if (statusElement) statusElement.textContent = text; }
+function findAnimation(...names: string[]): AnimationGroup | null {
+  return animationGroups.find((group) => names.some((name) => group.name.toLowerCase().includes(name))) ?? null;
 }
-
-function findAnimation(...needles: string[]): AnimationGroup | null {
-  return animationGroups.find((group) => {
-    const name = group.name.toLowerCase();
-    return needles.some((needle) => name.includes(needle));
-  }) ?? null;
-}
-
 function playAnimation(name: "idle" | "walk" | "run" | "jump" | "wave"): void {
   if (currentAnimationName === name && currentAnimation?.isPlaying) return;
-
-  const next = name === "idle"
-    ? findAnimation("idle", "breath")
-    : name === "walk"
-      ? findAnimation("walk")
-      : name === "run"
-        ? findAnimation("run", "jog") ?? findAnimation("walk")
-        : name === "jump"
-          ? findAnimation("jump")
-          : findAnimation("wave", "samba", "dance");
-
+  const next = name === "idle" ? findAnimation("idle", "breath")
+    : name === "walk" ? findAnimation("walk")
+    : name === "run" ? findAnimation("run", "jog") ?? findAnimation("walk")
+    : name === "jump" ? findAnimation("jump")
+    : findAnimation("wave", "samba", "dance");
   if (!next) return;
   currentAnimation?.stop();
   next.start(name !== "jump" && name !== "wave", 1, next.from, next.to, false);
@@ -217,59 +198,66 @@ function playAnimation(name: "idle" | "walk" | "run" | "jump" | "wave"): void {
   currentAnimationName = name;
 }
 
-function createFallbackCharacter(): void {
-  const bodyMaterial = new StandardMaterial("fallback-body", scene);
-  bodyMaterial.diffuseColor = new Color3(0.12, 0.46, 0.92);
-  const accentMaterial = new StandardMaterial("fallback-accent", scene);
-  accentMaterial.diffuseColor = new Color3(1, 0.58, 0.12);
+function styleColors(style: string): [Color3, Color3] {
+  if (style === "ember") return [new Color3(0.95, 0.24, 0.12), new Color3(1, 0.66, 0.16)];
+  if (style === "forest") return [new Color3(0.08, 0.48, 0.27), new Color3(0.52, 0.82, 0.24)];
+  return [new Color3(0.08, 0.48, 0.95), new Color3(0.42, 0.82, 1)];
+}
 
-  const body = MeshBuilder.CreateCapsule("fallback-character", { height: 1.55, radius: 0.38 }, scene);
+function applyCharacterStyle(style: string): void {
+  activeStyle = style;
+  const [primary, accent] = styleColors(style);
+  characterMeshes.forEach((mesh, index) => {
+    if (!mesh.material) return;
+    if (!originalMaterials.has(mesh)) originalMaterials.set(mesh, mesh.material);
+    const clone = originalMaterials.get(mesh)?.clone(`${style}-${mesh.name}`);
+    if (!clone) return;
+    if (clone instanceof PBRMaterial) clone.albedoColor = index % 3 === 0 ? accent : primary;
+    if (clone instanceof StandardMaterial) clone.diffuseColor = index % 3 === 0 ? accent : primary;
+    mesh.material = clone;
+  });
+  if (fallbackCharacter?.material instanceof StandardMaterial) fallbackCharacter.material.diffuseColor = primary;
+  characterButtons.forEach((button) => {
+    const active = button.dataset.character === style;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+  setStatus(`${style[0].toUpperCase()}${style.slice(1)} selected`);
+}
+
+function createFallbackCharacter(): void {
+  const [primary, accent] = styleColors(activeStyle);
+  const body = MeshBuilder.CreateCapsule("fallback", { height: 1.55, radius: 0.38 }, scene);
   body.parent = player;
   body.position.y = 0.85;
-  body.material = bodyMaterial;
+  body.material = material("fallback-body", primary);
   fallbackCharacter = body;
-
-  const face = MeshBuilder.CreateSphere("fallback-face", { diameter: 0.5, segments: 24 }, scene);
-  face.parent = player;
-  face.position = new Vector3(0, 1.55, 0.1);
-  face.material = accentMaterial;
-
-  const nose = MeshBuilder.CreateSphere("fallback-nose", { diameter: 0.15, segments: 16 }, scene);
-  nose.parent = player;
-  nose.position = new Vector3(0, 1.57, 0.37);
-  nose.material = bodyMaterial;
-
-  [body, face, nose].forEach((mesh) => shadows.addShadowCaster(mesh));
-  setStatus("Fallback hero ready");
+  const head = MeshBuilder.CreateSphere("head", { diameter: 0.58, segments: 24 }, scene);
+  head.parent = player;
+  head.position.set(0, 1.62, 0.03);
+  head.material = material("fallback-head", accent);
+  [body, head].forEach((mesh) => shadows.addShadowCaster(mesh));
 }
 
 async function loadCharacter(): Promise<void> {
   try {
-    const result = await SceneLoader.ImportMeshAsync(
-      "",
-      "https://assets.babylonjs.com/meshes/",
-      "HVGirl.glb",
-      scene,
-    );
-
+    const result = await SceneLoader.ImportMeshAsync("", "https://assets.babylonjs.com/meshes/", "HVGirl.glb", scene);
     characterRoot = new TransformNode("character-root", scene);
     characterRoot.parent = player;
-    characterRoot.scaling = new Vector3(0.1, 0.1, 0.1);
+    characterRoot.scaling.setAll(0.1);
     characterRoot.rotationQuaternion = Quaternion.FromEulerAngles(0, Math.PI, 0);
-
     characterMeshes = result.meshes;
     characterMeshes.forEach((mesh) => {
       if (!mesh.parent) mesh.parent = characterRoot;
       mesh.receiveShadows = true;
       shadows.addShadowCaster(mesh);
     });
-
     animationGroups = result.animationGroups;
     animationGroups.forEach((group) => group.stop());
+    applyCharacterStyle(activeStyle);
     playAnimation("idle");
-    setStatus("Hero ready • Explore");
   } catch (error) {
-    console.error("Character failed to load; using fallback.", error);
+    console.error(error);
     createFallbackCharacter();
   }
 }
@@ -283,18 +271,16 @@ let lastTime = performance.now();
 
 function requestJump(): void {
   if (!grounded) return;
-  verticalVelocity = 6.7;
+  verticalVelocity = 6.8;
   grounded = false;
   actionLockedUntil = performance.now() + 620;
   playAnimation("jump");
 }
-
 function requestWave(): void {
   if (!grounded) return;
   actionLockedUntil = performance.now() + 1600;
   playAnimation("wave");
 }
-
 function resetPlayer(): void {
   player.position.set(0, 0, 0);
   player.rotationQuaternion = Quaternion.Identity();
@@ -302,7 +288,7 @@ function resetPlayer(): void {
   grounded = true;
   camera.alpha = -Math.PI / 2;
   camera.beta = 1.08;
-  camera.radius = 7.5;
+  camera.radius = 8.2;
   playAnimation("idle");
 }
 
@@ -312,20 +298,15 @@ window.addEventListener("keydown", (event) => {
     pressed.add(key);
     event.preventDefault();
   }
-  if (event.code === "Space") {
-    requestJump();
-    event.preventDefault();
-  }
+  if (event.code === "Space") { requestJump(); event.preventDefault(); }
   if (key === "e") requestWave();
 });
-
 window.addEventListener("keyup", (event) => pressed.delete(event.key.toLowerCase()));
 window.addEventListener("blur", () => pressed.clear());
 
 function setupJoystick(): void {
   if (!joystickZone || !joystickKnob) return;
   let activePointer: number | null = null;
-
   const update = (event: PointerEvent): void => {
     const rect = joystickZone.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
@@ -334,23 +315,13 @@ function setupJoystick(): void {
     let dx = event.clientX - centerX;
     let dy = event.clientY - centerY;
     const distance = Math.hypot(dx, dy);
-    if (distance > maxDistance) {
-      dx = (dx / distance) * maxDistance;
-      dy = (dy / distance) * maxDistance;
-    }
+    if (distance > maxDistance) { dx = dx / distance * maxDistance; dy = dy / distance * maxDistance; }
     touchInput.x = dx / maxDistance;
     touchInput.y = -dy / maxDistance;
     joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
   };
-
-  joystickZone.addEventListener("pointerdown", (event) => {
-    activePointer = event.pointerId;
-    joystickZone.setPointerCapture(event.pointerId);
-    update(event);
-  });
-  joystickZone.addEventListener("pointermove", (event) => {
-    if (event.pointerId === activePointer) update(event);
-  });
+  joystickZone.addEventListener("pointerdown", (event) => { activePointer = event.pointerId; joystickZone.setPointerCapture(event.pointerId); update(event); });
+  joystickZone.addEventListener("pointermove", (event) => { if (event.pointerId === activePointer) update(event); });
   const release = (event: PointerEvent): void => {
     if (event.pointerId !== activePointer) return;
     activePointer = null;
@@ -361,7 +332,6 @@ function setupJoystick(): void {
   joystickZone.addEventListener("pointerup", release);
   joystickZone.addEventListener("pointercancel", release);
 }
-
 setupJoystick();
 
 helpToggle?.addEventListener("click", () => {
@@ -371,44 +341,49 @@ helpToggle?.addEventListener("click", () => {
 waveButton?.addEventListener("click", requestWave);
 jumpButton?.addEventListener("click", requestJump);
 resetButton?.addEventListener("click", resetPlayer);
+characterButtons.forEach((button) => button.addEventListener("click", () => applyCharacterStyle(button.dataset.character ?? "sky")));
 
-function getMovementInput(): Vector3 {
-  let horizontal = touchInput.x;
-  let vertical = touchInput.y;
-  if (pressed.has("a") || pressed.has("arrowleft")) horizontal -= 1;
-  if (pressed.has("d") || pressed.has("arrowright")) horizontal += 1;
-  if (pressed.has("w") || pressed.has("arrowup")) vertical += 1;
-  if (pressed.has("s") || pressed.has("arrowdown")) vertical -= 1;
+function movementInput(): Vector3 {
+  let x = touchInput.x;
+  let z = touchInput.y;
+  if (pressed.has("a") || pressed.has("arrowleft")) x -= 1;
+  if (pressed.has("d") || pressed.has("arrowright")) x += 1;
+  if (pressed.has("w") || pressed.has("arrowup")) z += 1;
+  if (pressed.has("s") || pressed.has("arrowdown")) z -= 1;
+  const length = Math.hypot(x, z);
+  if (length > 1) { x /= length; z /= length; }
+  return new Vector3(x, 0, z);
+}
 
-  const length = Math.hypot(horizontal, vertical);
-  if (length > 1) {
-    horizontal /= length;
-    vertical /= length;
-  }
-  return new Vector3(horizontal, 0, vertical);
+function updateZone(): void {
+  const { x, z } = player.position;
+  const zone = x < -28 && z > 8 ? "Crystal Lake"
+    : x > 27 && z < 2 ? "Trailside Village"
+    : z < -38 ? "Stonepeak Mountains"
+    : z > 35 ? "Portal Grove"
+    : Math.abs(x) > 48 || Math.abs(z) > 48 ? "Deep Wilds"
+    : "Sunrise Meadow";
+  if (zoneChip && zoneChip.textContent !== zone) zoneChip.textContent = zone;
 }
 
 function updatePlayer(deltaSeconds: number): void {
-  const input = getMovementInput();
+  const input = movementInput();
   const moving = input.lengthSquared() > 0.01;
   const running = pressed.has("shift") || Math.abs(touchInput.x) + Math.abs(touchInput.y) > 1.35;
 
   if (moving) {
-    const cameraForward = new Vector3(Math.sin(camera.alpha), 0, Math.cos(camera.alpha));
-    const cameraRight = new Vector3(cameraForward.z, 0, -cameraForward.x);
+    const cameraForward = camera.getForwardRay().direction.clone();
+    cameraForward.y = 0;
+    cameraForward.normalize();
+    const cameraRight = Vector3.Cross(Vector3.Up(), cameraForward).normalize();
     const direction = cameraRight.scale(input.x).add(cameraForward.scale(input.z)).normalize();
-    const speed = running ? 5.1 : 2.7;
+    const speed = running ? 6.2 : 3.25;
     player.position.addInPlace(direction.scale(speed * deltaSeconds));
-
     const targetYaw = Math.atan2(direction.x, direction.z);
     const currentYaw = player.rotationQuaternion?.toEulerAngles().y ?? 0;
-    const smoothedYaw = Scalar.LerpAngle(currentYaw, targetYaw, 1 - Math.exp(-12 * deltaSeconds));
-    player.rotationQuaternion = Quaternion.FromEulerAngles(0, smoothedYaw, 0);
-
+    player.rotationQuaternion = Quaternion.FromEulerAngles(0, Scalar.LerpAngle(currentYaw, targetYaw, 1 - Math.exp(-12 * deltaSeconds)), 0);
     if (performance.now() > actionLockedUntil && grounded) playAnimation(running ? "run" : "walk");
-  } else if (performance.now() > actionLockedUntil && grounded) {
-    playAnimation("idle");
-  }
+  } else if (performance.now() > actionLockedUntil && grounded) playAnimation("idle");
 
   verticalVelocity -= 17.5 * deltaSeconds;
   player.position.y += verticalVelocity * deltaSeconds;
@@ -422,20 +397,17 @@ function updatePlayer(deltaSeconds: number): void {
     }
   }
 
-  if (fallbackCharacter) {
-    const bob = moving && grounded ? Math.sin(performance.now() * (running ? 0.014 : 0.009)) * 0.055 : 0;
-    fallbackCharacter.position.y = 0.85 + bob;
-  }
-
-  player.position.x = Scalar.Clamp(player.position.x, -38, 38);
-  player.position.z = Scalar.Clamp(player.position.z, -38, 38);
+  if (fallbackCharacter) fallbackCharacter.position.y = 0.85 + (moving && grounded ? Math.sin(performance.now() * (running ? 0.014 : 0.009)) * 0.055 : 0);
+  player.position.x = Scalar.Clamp(player.position.x, -102, 102);
+  player.position.z = Scalar.Clamp(player.position.z, -102, 102);
   camera.target = Vector3.Lerp(camera.target, player.position.add(new Vector3(0, 1.15, 0)), 1 - Math.exp(-8 * deltaSeconds));
+  updateZone();
 }
 
 async function start(): Promise<void> {
   await loadCharacter();
+  setStatus("Explore five regions");
   loadingScreen?.classList.add("hidden");
-
   engine.runRenderLoop(() => {
     const now = performance.now();
     const deltaSeconds = Math.min((now - lastTime) / 1000, 0.05);
