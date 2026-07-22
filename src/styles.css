@@ -1,1 +1,111 @@
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#f7fbff;background:#07111f;font-synthesis:none;text-rendering:optimizeLegibility}*{box-sizing:border-box}html,body,#app{width:100%;height:100%;margin:0;overflow:hidden}body{overscroll-behavior:none;touch-action:none}button{font:inherit}#game-canvas{width:100%;height:100%;display:block;outline:none;touch-action:none}.topbar{position:fixed;inset:max(18px,env(safe-area-inset-top)) 20px auto 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;pointer-events:none;z-index:5}.eyebrow{margin:0 0 4px;font-size:11px;font-weight:800;letter-spacing:.2em;color:#9ed8ff}h1{margin:0;font-size:clamp(22px,3vw,34px);line-height:1;text-shadow:0 2px 18px rgba(0,0,0,.45)}.status,.zone-chip{padding:9px 12px;border:1px solid rgba(255,255,255,.2);border-radius:999px;background:rgba(7,17,31,.68);backdrop-filter:blur(14px);color:#d9efff;font-size:12px;font-weight:800}.zone-chip{position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:5;pointer-events:none}.help-panel,.character-panel{position:fixed;right:20px;border:1px solid rgba(255,255,255,.16);border-radius:20px;background:rgba(7,17,31,.72);backdrop-filter:blur(18px);overflow:hidden;z-index:5}.help-panel{top:92px;width:200px}.character-panel{top:286px;width:230px;padding:13px}.panel-title{margin-bottom:10px;font-size:12px;font-weight:900;color:#d9efff}.character-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.character-card{display:grid;gap:3px;justify-items:center;padding:10px 6px;border:1px solid rgba(255,255,255,.14);border-radius:14px;color:#e9f5ff;background:rgba(255,255,255,.05);font-size:11px;font-weight:900;cursor:pointer;transition:.18s ease}.character-card:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}.character-card.active{border-color:#76c7ff;background:linear-gradient(145deg,rgba(22,140,255,.32),rgba(101,93,255,.2));box-shadow:0 0 0 1px rgba(118,199,255,.16)}.character-card .avatar{font-size:26px;line-height:1.1}.character-card small{font-size:9px;color:#a9c0d3;font-weight:700}.panel-toggle{width:100%;border:0;padding:12px 14px;color:#fff;background:transparent;text-align:left;font-weight:900;cursor:pointer}.help-content{padding:0 14px 14px}.help-content>div{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;color:#c9d8e6;font-size:12px}.help-panel.collapsed .help-content{display:none}kbd{min-width:48px;padding:4px 7px;border:1px solid rgba(255,255,255,.16);border-bottom-width:2px;border-radius:7px;background:rgba(255,255,255,.08);color:#fff;text-align:center;font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace}.action-bar{position:fixed;left:50%;bottom:max(22px,env(safe-area-inset-bottom));display:flex;gap:10px;transform:translateX(-50%);z-index:5}.action-bar button{min-height:48px;padding:0 18px;border:1px solid rgba(255,255,255,.2);border-radius:16px;color:#fff;background:rgba(7,17,31,.76);backdrop-filter:blur(16px);font-weight:900;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.22)}.action-bar button:active{transform:translateY(2px)}.action-bar .primary{background:linear-gradient(135deg,#168cff,#655dff)}.joystick-zone{display:none;position:fixed;left:20px;bottom:max(24px,env(safe-area-inset-bottom));width:132px;height:132px;z-index:6}.joystick-base{position:absolute;inset:0;border:1px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(7,17,31,.44);backdrop-filter:blur(12px)}.joystick-knob{position:absolute;left:50%;top:50%;width:58px;height:58px;border:1px solid rgba(255,255,255,.35);border-radius:50%;background:rgba(255,255,255,.2);transform:translate(-50%,-50%);box-shadow:0 8px 22px rgba(0,0,0,.22)}.loading-screen{position:fixed;inset:0;display:grid;place-content:center;gap:10px;text-align:center;background:radial-gradient(circle at 50% 40%,#173a5d,#07111f 66%);z-index:20;transition:opacity .45s ease,visibility .45s ease}.loading-screen.hidden{opacity:0;visibility:hidden}.loading-screen small{color:#a8bfd0}.loader-orbit{width:72px;height:72px;margin:0 auto 12px;border:1px solid rgba(255,255,255,.14);border-radius:50%;animation:spin 1.3s linear infinite}.loader-orbit span{display:block;width:18px;height:18px;border-radius:50%;background:#76c7ff;box-shadow:0 0 24px #168cff}@keyframes spin{to{transform:rotate(360deg)}}@media(pointer:coarse),(max-width:760px){.joystick-zone{display:block}.help-panel{top:auto;right:14px;bottom:88px;width:152px}.help-content{display:none}.character-panel{top:82px;right:14px;width:174px}.character-grid{gap:6px}.character-card{padding:8px 4px}.action-bar{left:auto;right:14px;transform:none;bottom:max(18px,env(safe-area-inset-bottom))}.action-bar button{min-width:54px;padding:0 12px;font-size:0}.action-bar button::first-letter{font-size:20px}h1{max-width:210px;line-height:1.05}.status{max-width:112px;text-align:center}.zone-chip{top:auto;bottom:18px;left:50%}}
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #f7fbff;
+  background: #07111f;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+html, body, #app { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body { overscroll-behavior: none; touch-action: none; }
+button { font: inherit; }
+#game-canvas { width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+
+.topbar {
+  position: fixed;
+  inset: max(18px, env(safe-area-inset-top)) 20px auto 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  pointer-events: none;
+  z-index: 5;
+}
+.eyebrow { margin: 0 0 4px; font-size: 11px; font-weight: 800; letter-spacing: .2em; color: #9ed8ff; }
+h1 { margin: 0; font-size: clamp(20px, 3vw, 32px); line-height: 1; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.status, .zone-chip {
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 999px;
+  background: rgba(7,17,31,.62);
+  backdrop-filter: blur(14px);
+  color: #d9efff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.zone-chip { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); z-index: 5; pointer-events: none; }
+
+.help-panel, .character-panel {
+  position: fixed;
+  right: 20px;
+  width: 210px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 18px;
+  background: rgba(7,17,31,.72);
+  backdrop-filter: blur(18px);
+  overflow: hidden;
+  z-index: 5;
+  box-shadow: 0 18px 44px rgba(0,0,0,.24);
+}
+.help-panel { top: 92px; }
+.character-panel { top: 290px; padding: 12px; }
+.panel-title { margin-bottom: 10px; font-size: 12px; font-weight: 800; color: #d9efff; }
+.character-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.character-card {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 9px 4px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 12px;
+  color: #dcecff;
+  background: rgba(255,255,255,.05);
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, transform .2s ease;
+}
+.character-card:hover { transform: translateY(-1px); background: rgba(255,255,255,.09); }
+.character-card.active { border-color: #76c7ff; background: rgba(22,140,255,.22); }
+.character-swatch { width: 28px; height: 28px; border-radius: 50%; box-shadow: inset 0 0 0 2px rgba(255,255,255,.28), 0 5px 14px rgba(0,0,0,.24); }
+.character-swatch.power { background: linear-gradient(135deg,#f4a62a,#25324b); }
+.character-swatch.runway { background: linear-gradient(135deg,#e84d96,#171821); }
+.character-swatch.sport { background: linear-gradient(135deg,#4dd7d2,#1768d8); }
+.quality-note { margin: 10px 2px 0; color: #9fb5c7; font-size: 10px; line-height: 1.35; }
+
+.panel-toggle { width: 100%; border: 0; padding: 12px 14px; color: #fff; background: transparent; text-align: left; font-weight: 800; cursor: pointer; }
+.help-content { padding: 0 14px 14px; }
+.help-content > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; color: #c9d8e6; font-size: 12px; }
+.help-panel.collapsed .help-content { display: none; }
+kbd { min-width: 48px; padding: 4px 7px; border: 1px solid rgba(255,255,255,.16); border-bottom-width: 2px; border-radius: 7px; background: rgba(255,255,255,.08); color: #fff; text-align: center; font: 700 10px ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+.action-bar { position: fixed; left: 50%; bottom: max(22px, env(safe-area-inset-bottom)); display: flex; gap: 10px; transform: translateX(-50%); z-index: 5; }
+.action-bar button { min-height: 48px; padding: 0 18px; border: 1px solid rgba(255,255,255,.2); border-radius: 16px; color: white; background: rgba(7,17,31,.72); backdrop-filter: blur(16px); font-weight: 800; cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,.22); }
+.action-bar button:active { transform: translateY(2px); }
+.action-bar .primary { background: linear-gradient(135deg, #168cff, #655dff); }
+
+.joystick-zone { display: none; position: fixed; left: 20px; bottom: max(24px, env(safe-area-inset-bottom)); width: 132px; height: 132px; z-index: 6; }
+.joystick-base { position: absolute; inset: 0; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; background: rgba(7,17,31,.44); backdrop-filter: blur(12px); }
+.joystick-knob { position: absolute; left: 50%; top: 50%; width: 58px; height: 58px; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; background: rgba(255,255,255,.2); transform: translate(-50%, -50%); box-shadow: 0 8px 22px rgba(0,0,0,.22); }
+
+.loading-screen { position: fixed; inset: 0; display: grid; place-content: center; gap: 10px; text-align: center; background: radial-gradient(circle at 50% 40%, #173a5d, #07111f 66%); z-index: 20; transition: opacity .45s ease, visibility .45s ease; }
+.loading-screen.hidden { opacity: 0; visibility: hidden; }
+.loading-screen small { color: #a8bfd0; }
+.loader-orbit { width: 72px; height: 72px; margin: 0 auto 12px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; animation: spin 1.3s linear infinite; }
+.loader-orbit span { display: block; width: 18px; height: 18px; border-radius: 50%; background: #76c7ff; box-shadow: 0 0 24px #168cff; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (pointer: coarse), (max-width: 760px) {
+  .joystick-zone { display: block; }
+  .help-panel { top: auto; right: 14px; bottom: 88px; width: 152px; }
+  .help-content { display: none; }
+  .character-panel { top: 80px; right: 14px; width: 176px; }
+  .action-bar { left: auto; right: 14px; transform: none; bottom: max(18px, env(safe-area-inset-bottom)); }
+  .action-bar button { min-width: 54px; padding: 0 12px; font-size: 0; }
+  .action-bar button::first-letter { font-size: 20px; }
+  h1 { max-width: 230px; line-height: 1.05; }
+  .status { max-width: 112px; text-align: center; }
+  .zone-chip { top: auto; bottom: 18px; left: 50%; }
+  .quality-note { display: none; }
+}
