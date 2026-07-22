@@ -4,52 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#07111f" />
-    <meta name="description" content="K2 3D open-world character movement playground built with Babylon.js." />
+    <meta name="description" content="K2 3D open-world character playground." />
     <title>K2 3D Playground</title>
   </head>
   <body>
     <div id="app">
-      <canvas id="game-canvas" aria-label="Interactive 3D open-world character playground"></canvas>
+      <canvas id="game-canvas" aria-label="Interactive 3D open-world playground"></canvas>
 
       <header class="topbar">
         <div>
           <p class="eyebrow">K2 GAME LAB</p>
-          <h1>3D Open World Playground</h1>
+          <h1>Choose Your Ride</h1>
         </div>
-        <div class="status" id="status">Loading world…</div>
+        <div class="status" id="status">Building world…</div>
       </header>
 
-      <aside class="character-panel" aria-label="Choose character">
-        <div class="panel-title">Choose Hero</div>
+      <aside class="character-panel" aria-label="Choose playable character">
+        <div class="panel-title">Playable Characters</div>
         <div class="character-grid">
-          <button class="character-card active" type="button" data-character="sky" aria-pressed="true">
-            <span class="character-swatch sky"></span><span>Sky</span>
-          </button>
-          <button class="character-card" type="button" data-character="ember" aria-pressed="false">
-            <span class="character-swatch ember"></span><span>Ember</span>
-          </button>
-          <button class="character-card" type="button" data-character="forest" aria-pressed="false">
-            <span class="character-swatch forest"></span><span>Forest</span>
-          </button>
+          <button class="character-card active" type="button" data-character="macho" aria-pressed="true"><span class="avatar">💪</span><span>Macho</span><small>Power run</small></button>
+          <button class="character-card" type="button" data-character="dog" aria-pressed="false"><span class="avatar">🐕</span><span>Dog</span><small>Sprint + wag</small></button>
+          <button class="character-card" type="button" data-character="model" aria-pressed="false"><span class="avatar">👠</span><span>Model</span><small>Runway stride</small></button>
+          <button class="character-card" type="button" data-character="truck" aria-pressed="false"><span class="avatar">🛻</span><span>Truck</span><small>Drive + wheels</small></button>
         </div>
       </aside>
 
       <aside class="help-panel" id="help-panel">
         <button class="panel-toggle" id="help-toggle" type="button" aria-expanded="true">Controls</button>
         <div class="help-content">
-          <div><kbd>WASD</kbd><span>Move toward camera</span></div>
-          <div><kbd>Shift</kbd><span>Run</span></div>
-          <div><kbd>Space</kbd><span>Jump</span></div>
-          <div><kbd>E</kbd><span>Wave</span></div>
+          <div><kbd>WASD</kbd><span>Move</span></div>
+          <div><kbd>Shift</kbd><span>Run / boost</span></div>
+          <div><kbd>Space</kbd><span>Jump / hop</span></div>
+          <div><kbd>E</kbd><span>Special action</span></div>
           <div><kbd>Drag</kbd><span>Orbit camera</span></div>
           <div><kbd>Wheel</kbd><span>Zoom</span></div>
         </div>
       </aside>
 
-      <div class="zone-chip" id="zone-chip">Meadow</div>
+      <div class="zone-chip" id="zone-chip">Sunrise Meadow</div>
 
       <div class="action-bar" aria-label="Character actions">
-        <button id="wave-button" type="button">👋 Wave</button>
+        <button id="wave-button" type="button">✨ Special</button>
         <button id="jump-button" class="primary" type="button">↑ Jump</button>
         <button id="reset-button" type="button">↺ Reset</button>
       </div>
@@ -60,8 +55,8 @@
 
       <div class="loading-screen" id="loading-screen">
         <div class="loader-orbit"><span></span></div>
-        <strong>Building your open world</strong>
-        <small>Loading characters, animations, and multiple regions</small>
+        <strong>Building your playground</strong>
+        <small>Creating four animated playable characters</small>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
