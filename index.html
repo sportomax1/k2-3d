@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#07111f" />
+    <meta name="description" content="K2 3D character movement playground built with Babylon.js." />
+    <title>K2 3D Playground</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas" aria-label="Interactive 3D character playground"></canvas>
+
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">K2 GAME LAB</p>
+          <h1>3D Character Playground</h1>
+        </div>
+        <div class="status" id="status">Loading world…</div>
+      </header>
+
+      <aside class="help-panel" id="help-panel">
+        <button class="panel-toggle" id="help-toggle" type="button" aria-expanded="true">Controls</button>
+        <div class="help-content">
+          <div><kbd>WASD</kbd><span>Move</span></div>
+          <div><kbd>Shift</kbd><span>Run</span></div>
+          <div><kbd>Space</kbd><span>Jump</span></div>
+          <div><kbd>E</kbd><span>Wave</span></div>
+          <div><kbd>Drag</kbd><span>Orbit camera</span></div>
+          <div><kbd>Wheel</kbd><span>Zoom</span></div>
+        </div>
+      </aside>
+
+      <div class="action-bar" aria-label="Character actions">
+        <button id="wave-button" type="button">👋 Wave</button>
+        <button id="jump-button" class="primary" type="button">↑ Jump</button>
+        <button id="reset-button" type="button">↺ Reset</button>
+      </div>
+
+      <div class="joystick-zone" id="joystick-zone" aria-label="Touch movement joystick">
+        <div class="joystick-base">
+          <div class="joystick-knob" id="joystick-knob"></div>
+        </div>
+      </div>
+
+      <div class="loading-screen" id="loading-screen">
+        <div class="loader-orbit"><span></span></div>
+        <strong>Building your world</strong>
+        <small>Loading character, animations, and environment</small>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
